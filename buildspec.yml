@@ -1,1 +1,51 @@
 
+version: 0.2
+
+phases:
+
+  install:
+    runtime-versions:
+      dotnet: 8.0
+
+    commands:
+
+      # Display installed SDK version
+      - dotnet --version
+
+  pre_build:
+    commands:
+
+      # Restore NuGet packages
+      - dotnet restore
+
+  build:
+    commands:
+
+      # Build solution
+      - dotnet build --configuration Release --no-restore
+
+      # Run tests
+      - dotnet test --configuration Release --no-build
+
+      # Publish application
+      - dotnet publish GodicBankAPI.csproj \
+          --configuration Release \
+          --output publish
+
+  post_build:
+    commands:
+
+      # Move into publish folder
+      - cd publish
+
+      # Create deployment package
+      - zip -r ../geodicAPI-deployment.zip .
+
+      - cd ..
+
+artifacts:
+
+  files:
+    - geodicAPI-deployment.zip
+
+  discard-paths: yes
